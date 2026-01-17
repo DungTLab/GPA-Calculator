@@ -3,48 +3,212 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tính điểm GPA</title>
-    <!-- Thư viện Tailwind CSS -->
+    <title>GPA Master - Công cụ tính điểm tín chỉ</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Inter từ Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- Liên kết đến tệp CSS riêng biệt -->
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Cấu hình Tailwind -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class', // Kích hoạt chế độ tối thủ công
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#6366f1',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Liên kết đến file CSS riêng -->
     <link rel="stylesheet" href="./css/main.css">
 </head>
-<body>
-    <div class="container">
-        <h1>Tính điểm GPA</h1>
+<body class="text-slate-700 dark:text-slate-200 min-h-screen flex flex-col items-center py-8 px-4 sm:px-6 transition-colors duration-300">
 
-        <div class="section-title">Nhập môn học</div>
-        <div class="input-group">
-            <div class="input-item">
-                <label for="score10">Điểm hệ 10:</label>
-                <input type="number" id="score10" min="0" max="10" step="0.01" placeholder="Ví dụ: 8.5">
+    <!-- Nút chuyển đổi giao diện -->
+    <button id="themeToggle" onclick="toggleTheme()" class="fixed top-4 right-4 p-3 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-yellow-400 shadow-lg border border-slate-200 dark:border-slate-700 transition-all hover:scale-110 z-50">
+        <i id="themeIcon" class="ph-fill ph-sun text-xl"></i>
+    </button>
+
+    <!-- Header -->
+    <header class="text-center mb-8 animate-fade-in relative z-10">
+        <div class="inline-flex items-center justify-center p-3 bg-blue-100 dark:bg-blue-900/50 rounded-full mb-4 shadow-sm transition-colors">
+            <i class="ph-fill ph-calculator text-3xl text-blue-600 dark:text-blue-400"></i>
+        </div>
+        <h1 class="text-3xl sm:text-4xl font-bold text-slate-800 dark:text-white tracking-tight transition-colors">GPA Master</h1>
+        <p class="text-slate-500 dark:text-slate-400 mt-2 transition-colors">Tính điểm trung bình tín chỉ nhanh chóng & chính xác</p>
+    </header>
+
+    <div class="w-full max-w-4xl grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in relative z-10" style="animation-delay: 0.1s;">
+        
+        <!-- Cột Trái: Form Nhập Liệu -->
+        <div class="lg:col-span-1 space-y-6">
+            <div class="glass-panel bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-lg shadow-slate-200/50 dark:shadow-black/30 sticky top-6 transition-colors duration-300">
+                <div class="flex justify-between items-center mb-4 border-b border-slate-100 dark:border-slate-700 pb-3">
+                    <h2 class="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+                        <i class="ph-bold ph-pencil-simple text-blue-500 dark:text-blue-400"></i> Nhập môn học
+                    </h2>
+                    <button onclick="toggleGradeTable()" class="text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 hover:underline">
+                        Bảng quy đổi
+                    </button>
+                </div>
+
+                <form id="courseForm" onsubmit="handleFormSubmit(event)">
+                    <input type="hidden" id="editIndex" value="-1">
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label for="score10" class="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1">Điểm hệ 10</label>
+                            <div class="relative">
+                                <input type="number" id="score10" min="0" max="10" step="0.1" 
+                                    class="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-800 dark:text-white transition-all outline-none"
+                                    placeholder="VD: 8.5" required>
+                                <i class="ph-bold ph-exam absolute left-3 top-3 text-slate-400"></i>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="credits" class="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1">Số tín chỉ</label>
+                            <div class="relative">
+                                <input type="number" id="credits" min="1" step="1" 
+                                    class="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-800 dark:text-white transition-all outline-none"
+                                    placeholder="VD: 3" required>
+                                <i class="ph-bold ph-books absolute left-3 top-3 text-slate-400"></i>
+                            </div>
+                        </div>
+
+                        <div class="pt-2 flex gap-2">
+                            <button type="submit" id="submitBtn" class="flex-1 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white font-semibold py-2.5 px-4 rounded-xl transition-all shadow-md shadow-blue-200 dark:shadow-none flex items-center justify-center gap-2">
+                                <i class="ph-bold ph-plus"></i> <span>Thêm</span>
+                            </button>
+                            <button type="button" id="cancelEditBtn" onclick="cancelEdit()" class="hidden w-10 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-200 rounded-xl flex items-center justify-center transition-all">
+                                <i class="ph-bold ph-x"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
-            <div class="input-item">
-                <label for="credits">Số tín chỉ:</label>
-                <input type="number" id="credits" min="1" step="1" placeholder="Ví dụ: 3">
+        </div>
+
+        <!-- Cột Phải: Danh sách & Kết quả -->
+        <div class="lg:col-span-2 space-y-6">
+            
+            <!-- Thẻ Kết Quả -->
+            <div id="resultCard" class="bg-gradient-to-br from-blue-600 to-indigo-600 dark:from-blue-700 dark:to-indigo-800 rounded-2xl p-6 text-white shadow-xl shadow-blue-200/50 dark:shadow-none relative overflow-hidden hidden transition-all duration-300">
+                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-10 rounded-full blur-xl"></div>
+                <div class="absolute bottom-0 left-0 -mb-4 -ml-4 w-20 h-20 bg-white opacity-10 rounded-full blur-xl"></div>
+
+                <div class="relative z-10 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="text-center sm:text-left">
+                        <p class="text-blue-100 text-sm font-medium mb-1">Tổng kết GPA (Hệ 4)</p>
+                        <div class="text-5xl font-bold tracking-tight" id="gpaDisplay">0.00</div>
+                    </div>
+                    
+                    <div class="flex gap-8 border-t sm:border-t-0 sm:border-l border-white/20 pt-4 sm:pt-0 sm:pl-8">
+                        <div class="text-center">
+                            <p class="text-blue-100 text-xs uppercase tracking-wider mb-1">Tổng tín chỉ</p>
+                            <p class="text-xl font-bold" id="totalCreditsDisplay">0</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-blue-100 text-xs uppercase tracking-wider mb-1">Xếp loại</p>
+                            <p class="text-xl font-bold" id="rankDisplay">-</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <button class="add-button" onclick="addCourse()">Thêm môn học</button>
-        </div>
 
-        <div class="section-title">Danh sách môn học đã thêm</div>
-        <div id="courseList" class="course-list">
-            <!-- Các môn học sẽ được thêm vào đây bởi JavaScript -->
-            <p id="noCoursesMessage" class="text-gray-500 text-center">Chưa có môn học nào được thêm.</p>
-        </div>
+            <!-- Danh sách môn học -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col h-full min-h-[300px] transition-colors duration-300">
+                <div class="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/30">
+                    <h3 class="font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-2">
+                        <i class="ph-bold ph-list-dashes text-indigo-500 dark:text-indigo-400"></i> Danh sách môn học
+                        <span id="courseCountBadge" class="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs px-2 py-0.5 rounded-full">0</span>
+                    </h3>
+                    <button onclick="requestReset()" class="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 p-2 rounded-lg transition-colors text-sm font-medium flex items-center gap-1">
+                        <i class="ph-bold ph-trash"></i> Xóa tất cả
+                    </button>
+                </div>
 
-        <div class="button-group">
-            <button class="calculate-button" onclick="calculateGPA()">Tính điểm GPA</button>
-            <button class="reset-button" onclick="resetCalculator()">Làm lại</button>
-        </div>
-
-        <div id="result" class="result hidden">
-            <!-- Kết quả GPA sẽ hiển thị ở đây -->
+                <div id="courseList" class="divide-y divide-slate-100 dark:divide-slate-700 overflow-y-auto max-h-[500px] p-2">
+                    <!-- Javascript sẽ render danh sách tại đây -->
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Liên kết đến tệp JavaScript riêng biệt -->
+    <!-- Modal Bảng Quy Đổi -->
+    <div id="gradeModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden transform scale-95 transition-transform duration-300 border border-slate-200 dark:border-slate-700" id="gradeModalContent">
+            <div class="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900">
+                <h3 class="font-bold text-slate-800 dark:text-white">Bảng quy đổi điểm</h3>
+                <button onclick="toggleGradeTable()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1">
+                    <i class="ph-bold ph-x text-lg"></i>
+                </button>
+            </div>
+            <div class="p-0 overflow-y-auto max-h-[60vh]">
+                <table class="w-full text-sm text-left">
+                    <thead class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 font-medium">
+                        <tr>
+                            <th class="px-4 py-3">Điểm hệ 10</th>
+                            <th class="px-4 py-3">Điểm chữ</th>
+                            <th class="px-4 py-3">Điểm hệ 4</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-700 text-slate-700 dark:text-slate-300">
+                        <tr><td class="px-4 py-2">9.0 - 10.0</td><td class="px-4 py-2 font-bold text-green-600 dark:text-green-400">A+</td><td class="px-4 py-2">4.0</td></tr>
+                        <tr><td class="px-4 py-2">8.5 - 8.9</td><td class="px-4 py-2 font-bold text-green-500 dark:text-green-400">A</td><td class="px-4 py-2">3.75</td></tr>
+                        <tr><td class="px-4 py-2">8.0 - 8.4</td><td class="px-4 py-2 font-bold text-green-500 dark:text-green-400">A-</td><td class="px-4 py-2">3.5</td></tr>
+                        <tr><td class="px-4 py-2">7.5 - 7.9</td><td class="px-4 py-2 font-bold text-blue-500 dark:text-blue-400">B+</td><td class="px-4 py-2">3.25</td></tr>
+                        <tr><td class="px-4 py-2">7.0 - 7.4</td><td class="px-4 py-2 font-bold text-blue-500 dark:text-blue-400">B</td><td class="px-4 py-2">3.0</td></tr>
+                        <tr><td class="px-4 py-2">6.5 - 6.9</td><td class="px-4 py-2 font-bold text-blue-400 dark:text-blue-300">B-</td><td class="px-4 py-2">2.75</td></tr>
+                        <tr><td class="px-4 py-2">6.0 - 6.4</td><td class="px-4 py-2 font-bold text-yellow-500 dark:text-yellow-400">C+</td><td class="px-4 py-2">2.5</td></tr>
+                        <tr><td class="px-4 py-2">5.5 - 5.9</td><td class="px-4 py-2 font-bold text-yellow-500 dark:text-yellow-400">C</td><td class="px-4 py-2">2.25</td></tr>
+                        <tr><td class="px-4 py-2">5.0 - 5.4</td><td class="px-4 py-2 font-bold text-yellow-600 dark:text-yellow-500">C-</td><td class="px-4 py-2">2.0</td></tr>
+                        <tr><td class="px-4 py-2">4.0 - 4.9</td><td class="px-4 py-2 font-bold text-orange-500 dark:text-orange-400">D+</td><td class="px-4 py-2">1.5</td></tr>
+                        <tr><td class="px-4 py-2">0.0 - 4.0</td><td class="px-4 py-2 font-bold text-red-500 dark:text-red-400">F</td><td class="px-4 py-2">0.0</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-900 border-t border-slate-100 dark:border-slate-700 text-center">
+                <button onclick="toggleGradeTable()" class="w-full py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 font-medium transition-colors">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Xác Nhận Xóa -->
+    <div id="confirmModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-sm w-full p-6 transform scale-95 transition-transform duration-300 border border-slate-200 dark:border-slate-700" id="confirmModalContent">
+            <div class="text-center mb-6">
+                <div class="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="ph-bold ph-warning text-red-500 text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2">Xác nhận xóa</h3>
+                <p class="text-slate-500 dark:text-slate-400 text-sm" id="confirmMessage">Bạn có chắc chắn muốn thực hiện hành động này?</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="closeConfirmModal()" class="flex-1 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">Hủy</button>
+                <button onclick="executeConfirmAction()" class="flex-1 py-2.5 bg-red-500 text-white font-semibold rounded-xl hover:bg-red-600 transition-colors shadow-lg shadow-red-200 dark:shadow-none">Xóa ngay</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-4 right-4 bg-slate-800 dark:bg-slate-700 text-white px-4 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-3 z-50">
+        <i class="ph-fill ph-check-circle text-green-400 text-xl" id="toastIcon"></i>
+        <span id="toastMessage">Thông báo</span>
+    </div>
+
+    <!-- Liên kết đến file JS riêng -->
     <script src="./js/main.js"></script>
 </body>
 </html>
