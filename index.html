@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tính điểm GPA</title>
+    <!-- Thư viện Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Inter từ Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Liên kết đến tệp CSS riêng biệt -->
+    <link rel="stylesheet" href="./css/main.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Tính điểm GPA</h1>
+
+        <div class="section-title">Nhập môn học</div>
+        <div class="input-group">
+            <div class="input-item">
+                <label for="score10">Điểm hệ 10:</label>
+                <input type="number" id="score10" min="0" max="10" step="0.01" placeholder="Ví dụ: 8.5">
+            </div>
+            <div class="input-item">
+                <label for="credits">Số tín chỉ:</label>
+                <input type="number" id="credits" min="1" step="1" placeholder="Ví dụ: 3">
+            </div>
+            <button class="add-button" onclick="addCourse()">Thêm môn học</button>
+        </div>
+
+        <div class="section-title">Danh sách môn học đã thêm</div>
+        <div id="courseList" class="course-list">
+            <!-- Các môn học sẽ được thêm vào đây bởi JavaScript -->
+            <p id="noCoursesMessage" class="text-gray-500 text-center">Chưa có môn học nào được thêm.</p>
+        </div>
+
+        <div class="button-group">
+            <button class="calculate-button" onclick="calculateGPA()">Tính điểm GPA</button>
+            <button class="reset-button" onclick="resetCalculator()">Làm lại</button>
+        </div>
+
+        <div id="result" class="result hidden">
+            <!-- Kết quả GPA sẽ hiển thị ở đây -->
+        </div>
+    </div>
+
+    <!-- Liên kết đến tệp JavaScript riêng biệt -->
+    <script src="./js/main.js"></script>
+</body>
+</html>
