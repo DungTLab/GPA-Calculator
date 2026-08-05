@@ -72,7 +72,7 @@ export const CourseTable: React.FC<CourseTableProps> = ({
       {/* Table Content */}
       <div className="overflow-x-auto custom-scrollbar">
         <table className="w-full text-xs sm:text-sm text-left whitespace-nowrap">
-          <thead class="text-xs uppercase bg-slate-50 dark:bg-slate-900/80 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10 font-bold">
+          <thead className="text-xs uppercase bg-slate-50 dark:bg-slate-900/80 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10 font-bold">
             <tr>
               <th className="px-4 py-3">Tên môn học</th>
               <th className="px-4 py-3 text-center">Tín chỉ</th>
